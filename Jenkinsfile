@@ -1,33 +1,21 @@
-node {
-  try {
-    stage('Checkout') {
-      checkout scm
-    }
-    stage('Environment') {
-      sh 'git --version'
-      echo "Branch: ${env.BRANCH_NAME}"
-      sh 'docker -v'
-      sh 'printenv'
-    }
-    stage('Build Docker test'){
-     sh 'docker build -t react-app-pipeline -f Dockerfile --no-cache .'
-    }
-    stage('Docker test'){
-      sh 'docker run --rm react-app-pipeline'
-    }
-    stage('Clean Docker test'){
-      sh 'docker rmi react-app-pipeline'
-    }
-    stage('Deploy'){
-      if(env.BRANCH_NAME == 'master'){
-        sh 'docker build -t react-app-pipeline --no-cache .'
-        sh 'docker tag react-app localhost:5000/react-app-pipeline'
-        sh 'docker push localhost:5000/react-app'
-        sh 'docker rmi -f react-app localhost:5000/react-app-pipeline'
-      }
-    }
-  }
-  catch (err) {
-    throw err
-  }
+// Powered by Infostretch 
+
+timestamps {
+
+node () {
+
+	stage ('SampleAssignment - Checkout') {
+ 	 checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'bc4d6d6e-fbc3-4262-b73d-6a30109bc7f7', url: 'https://github.com/Nilesh108/emoji-search.git']]]) 
+	}
+	stage ('SampleAssignment - Post build actions') {
+/*
+Please note this is a direct conversion of post-build actions. 
+It may not necessarily work/behave in the same way as post-build actions work.
+A logic review is suggested.
+*/
+		// Mailer notification
+		step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: 'nilesh.mailbox1@gmail.com', sendToIndividuals: true])
+ 
+	}
+}
 }
